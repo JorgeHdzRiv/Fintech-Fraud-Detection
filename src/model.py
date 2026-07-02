@@ -37,7 +37,7 @@ def train_xgboost_baseline(X_train, y_train, X_test, y_test):
     # Calculamos el ratio de clases negativas vs positivas para el parámetro scale_pos_weight
     neg_class_count = len(y_train[y_train == 0])
     pos_class_count = len(y_train[y_train == 1])
-    scale_pos_weight = neg_class_count / pos_class_count
+    scale_pos_weight = neg_class_count / pos_class_count 
     
     # Configuramos el clasificador.
     # enable_categorical=True permite que XGBoost maneje las categorías sin necesidad de One-Hot Encoding
