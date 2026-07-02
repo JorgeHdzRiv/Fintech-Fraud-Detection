@@ -57,3 +57,32 @@ def load_and_optimize_data(filepath: str) -> pd.DataFrame:
     df = pd.read_csv(filepath)
     df = reduce_mem_usage(df)
     return df
+
+# Feature Engineering
+def create_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Genera variables derivadas para capturar patrones de comportamiento fraudulento.
+    """
+    print("Iniciando Feature Engineering...")
+    df_feat = df.copy()
+    
+    # 1. Proporción del gasto: ¿Esta transacción representa una parte masiva de su gasto mensual?
+    # Sumamos un pequeño epsilon (1e-5) para evitar divisiones por cero
+    df_feat['ratio_amount_to_monthly_spend'] = (
+        df_feat['transaction_amount'] / (df_feat['monthly_spend'] + 1e-5)
+    ).astype('float32')
+    
+    # 2. Velocidad y Urgencia: Relación entre transacciones diarias y el tiempo de la última
+    df_feat['velocity_urgency_index'] = (
+        df_feat['daily_transaction_count'] / (df_feat['previous_transaction_gap'] + 1e-5)
+    ).astype('float32')
+    
+    # 3. Interacciones Categóricas - Numéricas (Riesgo Compuesto)
+    # Ejemplo: Penalizar transacciones sin tarjeta física que están lejos de casa
+    # Asumiendo que card_present es 0 (No presente) y 1 (Presente)
+    df_feat['risk_distance_no_card'] = (
+        (1 - df_feat['card_present']) * df_feat['distance_from_home']
+    ).astype('float32')
+    
+    print("Feature Engineering completado. Nuevas variables añadidas.")
+    return df_feat
