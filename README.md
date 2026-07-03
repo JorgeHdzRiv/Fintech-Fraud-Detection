@@ -2,63 +2,52 @@
 
 > **Sistema integral de aprendizaje automático para la detección de fraude en FinTech. Incluye optimización de memoria, manejo de datos desequilibrados e IA explicable (SHAP), implementado a través de una interfaz interactiva Streamlit.**
 
-## 📖 Business Context
+## 📖 Contexto de Negocio
 
-En el sector FinTech, la detección de fraude es un problema de optimización asimétrica. 
-* Los **Falsos Negativos** (transacciones fraudulentas aprobadas) resultan en pérdidas financieras directas y un daño a la reputación de la institución.
-* Los **Falsos Positivos** (transacciones legítimas declinadas) generan fricción con el cliente, afectando la retención y el *Lifetime Value* (LTV).
+En el sector FinTech, el fraude es un problema de optimización asimétrica. 
+* Los **Falsos Negativos** (fraude aprobado) generan pérdidas directas.
+* Los **Falsos Positivos** (clientes bloqueados) dañan el *Lifetime Value* (LTV) y saturan los centros de soporte.
 
-Este proyecto desarrolla un motor de riesgo transaccional enfocado en maximizar la captura de fraude minimizando el impacto en clientes legítimos, utilizando datos desbalanceados e integrando interpretabilidad (XAI) para auditoría de reglas de negocio.
+Este motor de riesgo busca un equilibrio matemático, actuando como un filtro de primera línea que evalúa transacciones en tiempo real basándose en el historial y comportamiento espacial del usuario.
 
-## 📊 The Challenge: Imbalanced Data & Non-Linear Patterns
+## 📊 Retos Técnicos y Limitaciones Descubiertas
 
-El modelo fue entrenado con un dataset transaccional de 500K registros, presentando los siguientes retos:
-* **Desbalance Extremo:** Solo el 2.34% de las transacciones son fraudulentas.
-* **Falta de Linealidad:** El análisis exploratorio (EDA) demostró que las variables individuales tienen una correlación lineal casi nula con el fraude (< 0.05). El fraude ocurre en intersecciones complejas de comportamiento.
+Durante la fase de pruebas de estrés (Stress Testing) con la aplicación interactiva, se documentaron hallazgos clave sobre el comportamiento de los modelos basados en árboles:
+1. **El Límite del Aprendizaje Supervisado (Underfitting por Desbalance):** Al forzar el hiperparámetro de hiper-sensibilidad (`max_depth=9`, `learning_rate=0.1`), el modelo colapsó (PR-AUC cayó a 0.02) debido a la memorización de ruido en el 2.3% de la clase minoritaria. Se optó por un modelo estable más conservador.
+2. **Sesgo Categórico (Overfitting a "Bolsillos Seguros"):** Mediante la auditoría con **SHAP**, descubrimos que el modelo otorgaba "Pases VIP" a transacciones altamente anómalas simplemente porque ocurrían en categorías históricamente seguras (ej. *Fashion*) o por la alta antigüedad de la cuenta.
 
-## 🛠️ Technical Architecture & Methodology
+## 🛠️ Solución Arquitectónica y Despliegue
 
-1. **Data Engineering & Memory Optimization:** 
-   Procesamiento de 500K filas implementando técnicas de *Downcasting*, reduciendo el consumo de memoria en más del 60% para despliegues ligeros.
-2. **Feature Engineering:**
-   Creación de variables derivadas enfocadas en comportamiento transaccional (ej. `velocity_urgency_index`, `ratio_amount_to_monthly_spend`).
-3. **Advanced Modeling (Supervised):**
-   Entrenamiento de **XGBoost** ajustando la métrica PR-AUC mediante validación cruzada (`RandomizedSearchCV`). Se aplicó optimización matemática del umbral de decisión (Threshold Moving) para equilibrar el rendimiento.
-4. **Explainable AI (XAI):**
-   Integración de valores **SHAP** para proporcionar interpretabilidad local (auditoría de transacciones específicas) y global.
+Para mitigar estas limitaciones en producción, se implementaron las siguientes estrategias en la interfaz operativa de Streamlit:
+* **Threshold Moving (Ajuste Operativo):** Se redujo el umbral de decisión estricto a **45.0%** en la interfaz para contrarrestar el conservadurismo del modelo ante ataques de ráfaga (Card-Not-Present).
+* **Ingeniería de Características en Tiempo Real:** El simulador inyecta variables temporales y espaciales (ej. *velocity_urgency_index*) recalculadas al vuelo antes de la predicción.
+* **Auditoría XAI Dinámica:** Integración visual de valores Shapley para auditar por qué el motor aprueba o declina cada intento de fraude.
 
-## 📈 Results & Business Impact
-
-El modelo supervisado actúa como un **filtro de primera línea**, calibrado para proteger la experiencia del usuario:
-* **Aprobación Legítima (Recall Clase 0): 88%**. Se mitigó el bloqueo erróneo masivo, salvando a la institución de altos costos operativos en el centro de atención al cliente.
-* **Captura de Fraude (Recall Clase 1): 22%**. Se identifican de forma automática 1 de cada 5 fraudes históricos conocidos. 
-* **Límite Teórico:** Los resultados confirman que las reglas estáticas y los modelos supervisados puros son insuficientes ante el fraude mutante, requiriendo arquitecturas híbridas.
-
-## 📂 Project Structure
+## 📂 Estructura del Proyecto
 
 ```text
 fintech-fraud-detection/
-├── data/               # Directorio ignorado en git (raw/ y processed/)
-├── notebooks/  
-│   ├── 01_EDA_NoProcessing.ipynb           
+├── data/               # raw/ y processed/ (Ignorados en git)
+├── models/             # xgb_fraud_tuned.joblib (Modelo estable)
+├── notebooks/    
+│   ├── 01_EDA_NoProcessing.ipynb      
 │   ├── 02_EDA_Risk_Analysis.ipynb
 │   └── 03_Modeling_Baseline.ipynb  
 ├── src/
 │   ├── __init__.py
 │   ├── preprocessing.py            
-│   ├── model.py                    
-│   └── explainability.py           
+│   ├── explainability.py           
 ├── api/
-│   └── app.py                      # Aplicación interactiva (Streamlit)
+│   └── app.py                      # Dashboard Interactivo Streamlit
 ├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
 
-## 🚀 How to Run Locally
+## 🚀 Instalación y Ejecución Local
 1. Clonar el repositorio:
 ```bash
-git clone [https://github.com/TU_USUARIO/fintech-fraud-detection.git](https://github.com/TU_USUARIO/fintech-fraud-detection.git)
+git clone [https://github.com/JorgeHdzRiv/Fintech-Fraud-Detection.git](https://github.com/JorgeHdzRiv/Fintech-Fraud-Detection.git)
 cd fintech-fraud-detection
 ```
 
@@ -75,8 +64,6 @@ streamlit run api/app.py
 ```
 
 ## 📋 Next Steps / Roadmap
-* [ ] Unsupervised Learning Layer: Integrar un motor de aprendizaje no supervisado mediante el modelado con algoritmos como KMeans para agrupar comportamientos transaccionales y detectar anomalías de "día cero" que el modelo supervisado no logra capturar.
-
-* [ ] Implementar validación cruzada temporal (Time-Series Split) para evitar data leakage.
+* [ ] Módulo de Aprendizaje No Supervisado (KMeans): Dado que el modelo supervisado es vulnerable a ataques de fraude de "Día Cero" disfrazados en categorías seguras, el siguiente paso es integrar un algoritmo KMeans para detectar anomalías espaciales y clústeres de comportamiento, operando en paralelo al XGBoost.
 
 Este proyecto es parte de un portafolio profesional en Data Science y Análisis de Riesgo.

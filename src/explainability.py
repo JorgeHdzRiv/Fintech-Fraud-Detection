@@ -39,13 +39,14 @@ def plot_local_explanation(explainer, shap_values, X_sample: pd.DataFrame, trans
     if isinstance(expected_value, (list, np.ndarray)):
         expected_value = expected_value[0]
         
-    plt.figure(figsize=(12, 4))
+    plt.figure(figsize=(24, 5))
     shap.plots.force(
         expected_value, 
         shap_values[transaction_index], 
         X_sample.iloc[transaction_index, :],
         matplotlib=True,
-        show=False
+        show=False,
+        text_rotation= 0
     )
     plt.title(f"Auditoría de Transacción (Índice: {transaction_index})", fontweight='bold')
     plt.tight_layout()
