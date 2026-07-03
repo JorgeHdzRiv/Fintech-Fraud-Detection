@@ -2,6 +2,8 @@
 
 > **Sistema integral de aprendizaje automático para la detección de fraude en FinTech. Incluye optimización de memoria, manejo de datos desequilibrados e IA explicable (SHAP), implementado a través de una interfaz interactiva Streamlit.**
 
+🚀 [Prueba la aplicación en vivo aquí](https://fraud-engine.streamlit.app/)
+
 ## 📖 Contexto de Negocio
 
 En el sector FinTech, el fraude es un problema de optimización asimétrica. 
