@@ -14,33 +14,40 @@ Este proyecto desarrolla un motor de riesgo transaccional enfocado en maximizar 
 
 El modelo fue entrenado con un dataset transaccional de 500K registros, presentando los siguientes retos:
 * **Desbalance Extremo:** Solo el 2.34% de las transacciones son fraudulentas.
-* **Falta de Linealidad:** El análisis exploratorio (EDA) demostró que las variables individuales (como el monto o la distancia) tienen una correlación lineal casi nula con el fraude (< 0.05). El fraude ocurre en intersecciones complejas de comportamiento.
+* **Falta de Linealidad:** El análisis exploratorio (EDA) demostró que las variables individuales tienen una correlación lineal casi nula con el fraude (< 0.05). El fraude ocurre en intersecciones complejas de comportamiento.
 
 ## 🛠️ Technical Architecture & Methodology
 
 1. **Data Engineering & Memory Optimization:** 
-   Procesamiento de 500K filas implementando técnicas de *Downcasting* (reducción de `float64` a `float16/32` y optimización de tipos categóricos), reduciendo el consumo de memoria en más del 60% para despliegues ligeros.
+   Procesamiento de 500K filas implementando técnicas de *Downcasting*, reduciendo el consumo de memoria en más del 60% para despliegues ligeros.
 2. **Feature Engineering:**
-   Creación de variables derivadas enfocadas en comportamiento transaccional (ej. `velocity_urgency_index`, `ratio_amount_to_monthly_spend`) para exponer patrones anómalos a los algoritmos basados en árboles.
-3. **Advanced Modeling:**
-   Entrenamiento y evaluación de modelos de ensamble robustos ante el desbalanceo (**XGBoost, LightGBM**). Se descartó el uso de *Accuracy* en favor de métricas críticas para riesgo: **PR-AUC (Precision-Recall)** y **F-Beta Score**.
+   Creación de variables derivadas enfocadas en comportamiento transaccional (ej. `velocity_urgency_index`, `ratio_amount_to_monthly_spend`).
+3. **Advanced Modeling (Supervised):**
+   Entrenamiento de **XGBoost** ajustando la métrica PR-AUC mediante validación cruzada (`RandomizedSearchCV`). Se aplicó optimización matemática del umbral de decisión (Threshold Moving) para equilibrar el rendimiento.
 4. **Explainable AI (XAI):**
-   Integración de valores **SHAP** para proporcionar interpretabilidad local (explicar por qué una transacción específica fue bloqueada) y global (importancia de variables en el motor de riesgo).
-5. **Interactive Deployment:**
-   El pipeline predictivo y los dashboards de análisis están empaquetados para ser consumidos mediante una aplicación web interactiva en **Streamlit**, diseñada para ser el panel de control de un analista de fraude.
+   Integración de valores **SHAP** para proporcionar interpretabilidad local (auditoría de transacciones específicas) y global.
+
+## 📈 Results & Business Impact
+
+El modelo supervisado actúa como un **filtro de primera línea**, calibrado para proteger la experiencia del usuario:
+* **Aprobación Legítima (Recall Clase 0): 88%**. Se mitigó el bloqueo erróneo masivo, salvando a la institución de altos costos operativos en el centro de atención al cliente.
+* **Captura de Fraude (Recall Clase 1): 22%**. Se identifican de forma automática 1 de cada 5 fraudes históricos conocidos. 
+* **Límite Teórico:** Los resultados confirman que las reglas estáticas y los modelos supervisados puros son insuficientes ante el fraude mutante, requiriendo arquitecturas híbridas.
 
 ## 📂 Project Structure
 
 ```text
 fintech-fraud-detection/
-├── data/               # Directorio ignorado en git por size(raw/ y processed/)
-├── notebooks/          
-│   └── 01_EDA_Risk_Analysis.ipynb  # Análisis exploratorio y correlaciones
+├── data/               # Directorio ignorado en git (raw/ y processed/)
+├── notebooks/  
+│   ├── 01_EDA_NoProcessing.ipynb           
+│   ├── 02_EDA_Risk_Analysis.ipynb
+│   └── 03_Modeling_Baseline.ipynb  
 ├── src/
 │   ├── __init__.py
-│   ├── preprocessing.py            # Downcasting y Feature Engineering
-│   ├── model.py                    # Pipeline de entrenamiento XGBoost/LightGBM
-│   └── explainability.py           # Generación de gráficos SHAP
+│   ├── preprocessing.py            
+│   ├── model.py                    
+│   └── explainability.py           
 ├── api/
 │   └── app.py                      # Aplicación interactiva (Streamlit)
 ├── requirements.txt
@@ -68,8 +75,8 @@ streamlit run api/app.py
 ```
 
 ## 📋 Next Steps / Roadmap
-* [ ] Implementar validación cruzada temporal (Time-Series Split) para evitar data leakage en los patrones de fraude a lo largo del tiempo.
+* [ ] Unsupervised Learning Layer: Integrar un motor de aprendizaje no supervisado mediante el modelado con algoritmos como KMeans para agrupar comportamientos transaccionales y detectar anomalías de "día cero" que el modelo supervisado no logra capturar.
 
-* [ ] Empaquetar el pipeline en un contenedor de Docker para facilitar el despliegue en entornos cloud.
+* [ ] Implementar validación cruzada temporal (Time-Series Split) para evitar data leakage.
 
 Este proyecto es parte de un portafolio profesional en Data Science y Análisis de Riesgo.

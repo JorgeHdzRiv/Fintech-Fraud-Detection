@@ -1,6 +1,14 @@
+# Data
 data/raw/
 data/processed/
+
+# Enviroments
 __pycache__/
 *.ipynb_checkpoints/
 .env
 .venv
+
+# Modelos
+models/
+*.joblib
+*.pkl
