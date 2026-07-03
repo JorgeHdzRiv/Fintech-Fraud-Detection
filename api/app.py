@@ -27,8 +27,9 @@ def load_sample_data():
     Carga una muestra, aplica los tipos de datos correctos (category) 
     y retorna tanto los datos procesados para SHAP como una plantilla cruda para el simulador.
     """
-    data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw', 'credit_card_transactions.csv')
-    df = pd.read_csv(data_path, nrows=1000)
+    # NUEVA RUTA: Apunta directamente al archivo que acabamos de crear en la carpeta api/
+    data_path = os.path.join(os.path.dirname(__file__), 'sample_data.csv')
+    df = pd.read_csv(data_path)
     
     # CORRECCIÓN: Convertimos las columnas a 'category' como espera XGBoost
     df = reduce_mem_usage(df, verbose=False)
