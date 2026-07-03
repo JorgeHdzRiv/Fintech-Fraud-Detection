@@ -114,7 +114,7 @@ if st.sidebar.button("Evaluar Riesgo", type="primary"):
     
     # Predicción
     proba = model.predict_proba(input_features)[0, 1]
-    umbral = 0.45
+    umbral = 0.42
     
     # ---------------------------------------------------------
     # NUEVO DISEÑO: Veredicto arriba, SHAP a ancho completo abajo

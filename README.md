@@ -21,7 +21,7 @@ Durante la fase de pruebas de estrés (Stress Testing) con la aplicación intera
 ## 🛠️ Solución Arquitectónica y Despliegue
 
 Para mitigar estas limitaciones en producción, se implementaron las siguientes estrategias en la interfaz operativa de Streamlit:
-* **Threshold Moving (Ajuste Operativo):** Se redujo el umbral de decisión estricto a **45.0%** en la interfaz para contrarrestar el conservadurismo del modelo ante ataques de ráfaga (Card-Not-Present).
+* **Threshold Moving (Ajuste Operativo):** Se redujo el umbral de decisión estricto a **42.0%** en la interfaz para contrarrestar el conservadurismo del modelo ante ataques de ráfaga (Card-Not-Present).
 * **Ingeniería de Características en Tiempo Real:** El simulador inyecta variables temporales y espaciales (ej. *velocity_urgency_index*) recalculadas al vuelo antes de la predicción.
 * **Auditoría XAI Dinámica:** Integración visual de valores Shapley para auditar por qué el motor aprueba o declina cada intento de fraude.
 
